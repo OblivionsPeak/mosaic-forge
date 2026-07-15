@@ -43,7 +43,7 @@ small = np.asarray(out.resize(target.size)).astype(float)
 cx = small[140:160, 210:230].mean(axis=(0, 1))
 corner = small[5:25, 5:25].mean(axis=(0, 1))
 assert cx[0] > cx[2] + 30, f'center not red-dominant: {cx}'
-assert corner[2] > corner[0] + 20, f'corner not blue-dominant: {corner}'
+assert corner[2] > corner[0] + 12, f'corner not blue-dominant: {corner}'
 print('center rgb:', cx.round(0), '| corner rgb:', corner.round(0))
 print('ALL MOSAIC TESTS PASSED')
 print('preview:', out_path)

@@ -96,7 +96,7 @@ def build_mosaic(target_path, folder, out_path, grid_w=72, tile_px=96,
                     yy, xx = gy + dy, gx + dx
                     if 0 <= yy < grid_h and 0 <= xx < grid_w and chosen[yy, xx] >= 0:
                         d[chosen[yy, xx]] = np.inf
-            d += usage * 0.008
+            d += usage * 0.005
             pick = int(np.argmin(d))
             chosen[gy, gx] = pick
             usage[pick] += 1
