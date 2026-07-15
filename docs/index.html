@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mosaic Forge</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <span class="logo">MOSAIC<b>FORGE</b></span>
+  <span class="tag">rebuild an image out of hundreds of your photos &middot; 100% in your browser</span>
+</header>
+
+<main>
+  <section class="panel">
+    <h2><span class="step">1</span> The image to recreate</h2>
+    <p class="dim">A logo or a favorite shot. Big simple shapes and strong contrast work best.</p>
+    <div class="pick-row">
+      <button id="btn-target">Choose image…</button>
+      <input id="target-input" type="file" accept="image/*" hidden>
+      <canvas id="target-preview" width="0" height="0"></canvas>
+      <span id="target-name" class="dim"></span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><span class="step">2</span> Your photo library</h2>
+    <p class="dim">Pick the folder with your photos — subfolders included. 300+ photos makes a great mosaic. Nothing is uploaded; they never leave this PC.</p>
+    <div class="pick-row">
+      <button id="btn-photos">Choose folder…</button>
+      <input id="photos-input" type="file" webkitdirectory multiple hidden>
+      <span id="photos-name" class="dim"></span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><span class="step">3</span> Build it</h2>
+    <div class="knobs">
+      <label>Detail <span class="knob-val" id="grid-val">72 tiles across</span>
+        <input id="grid" type="range" min="40" max="120" step="4" value="72">
+      </label>
+      <label>Tile size <span class="knob-val" id="tile-val">96 px — print quality</span>
+        <input id="tile" type="range" min="48" max="160" step="16" value="96">
+      </label>
+      <label>Color match <span class="knob-val" id="blend-val">30% — balanced</span>
+        <input id="blend" type="range" min="0" max="60" step="5" value="30">
+      </label>
+    </div>
+    <button id="btn-build" class="primary" disabled>Build mosaic</button>
+    <div id="progress" class="progress" hidden><div class="bar"></div><span class="ptext"></span></div>
+  </section>
+
+  <section class="panel done" id="result-panel" hidden>
+    <h2>🖼 Your mosaic</h2>
+    <p class="dim" id="result-stats"></p>
+    <canvas id="result-preview"></canvas>
+    <button id="btn-download" class="primary">Download full-size PNG</button>
+  </section>
+
+  <div id="error" hidden></div>
+</main>
+
+<footer>Mosaic Forge runs entirely in your browser — no uploads, no accounts.</footer>
+<script src="app.js"></script>
+</body>
+</html>
