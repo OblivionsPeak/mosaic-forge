@@ -99,9 +99,21 @@ $('#btn-build').onclick = async () => {
 
 async function build() {
   const gridW = parseInt($('#grid').value, 10);
-  const tilePx = parseInt($('#tile').value, 10);
+  let tilePx = parseInt($('#tile').value, 10);
   const blend = parseInt($('#blend').value, 10) / 100;
   const spread = 3;
+
+  // browsers cap canvases (~16k per side, ~250 megapixels total) and FAIL
+  // SILENTLY past that — auto-reduce tile size to stay inside the ceiling
+  const gridH0 = Math.max(8, Math.round(gridW * targetBitmap.height / targetBitmap.width));
+  const MAX_SIDE = 16000, MAX_AREA = 220e6;
+  let capped = false;
+  while (tilePx > 32 &&
+         (gridW * tilePx > MAX_SIDE || gridH0 * tilePx > MAX_SIDE ||
+          gridW * tilePx * gridH0 * tilePx > MAX_AREA)) {
+    tilePx -= 8;
+    capped = true;
+  }
 
   // 1) index the library
   const tiles = [], sigs = [];
@@ -195,7 +207,8 @@ async function build() {
   const used = usage.reduce((a, v) => a + (v > 0 ? 1 : 0), 0);
   $('#result-stats').textContent =
     `${gridW}×${gridH} tiles · ${fullCanvas.width}×${fullCanvas.height}px · ` +
-    `${used} of ${n} photos used` + (skipped ? ` · ${skipped} files skipped` : '');
+    `${used} of ${n} photos used` + (skipped ? ` · ${skipped} files skipped` : '') +
+    (capped ? ` · tile size auto-capped at ${tilePx}px (browser canvas limit — this is the max the browser can render)` : '');
   const pv = $('#result-preview');
   const pscale = Math.min(1, 1600 / fullCanvas.width);
   pv.width = Math.round(fullCanvas.width * pscale);
@@ -208,13 +221,22 @@ async function build() {
 $('#btn-download').onclick = () => {
   if (!fullCanvas) return;
   progress(1, 'Encoding PNG…');
-  fullCanvas.toBlob((blob) => {
+  const save = (blob, name) => {
     $('#progress').hidden = true;
-    if (!blob) return showError('PNG encoding failed — try a smaller Detail/Tile size.');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'mosaic.png';
+    a.download = name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  };
+  fullCanvas.toBlob((blob) => {
+    if (blob) return save(blob, 'mosaic.png');
+    // PNG encoder gave up (memory) — JPEG at max quality is a fine poster file
+    progress(1, 'PNG too large — encoding JPEG instead…');
+    fullCanvas.toBlob((jblob) => {
+      if (jblob) return save(jblob, 'mosaic.jpg');
+      $('#progress').hidden = true;
+      showError('Could not encode an image this large — lower Detail or Tile size and rebuild.');
+    }, 'image/jpeg', 0.93);
   }, 'image/png');
 };
